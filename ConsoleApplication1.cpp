@@ -8,6 +8,10 @@
 #include <cmath>
 #include <algorithm>
 #include <sstream>
+#include <direct.h>   // Para _mkdir
+#include <io.h>       // Para _access
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>  // Para Windows API
 
 // Estructura para representar un píxel RGB
 struct Pixel {
@@ -302,16 +306,122 @@ Imagen reconstruirImagen(const Imagen& imagenTransformada, const Imagen& imagenA
     return imagenActual;
 }
 
+// Función para verificar si un directorio existe
+bool directorioExiste(const std::string& ruta) {
+    return _access(ruta.c_str(), 0) == 0;
+}
+
+// Función para obtener la lista de casos disponibles
+std::vector<std::string> obtenerCasosDisponibles() {
+    std::vector<std::string> casos;
+    std::string rutaCasos = "Casos";
+    
+    // Verificar si existe el directorio
+    if (!directorioExiste(rutaCasos)) {
+        throw std::runtime_error("No se encontró el directorio 'Casos'");
+    }
+    
+    WIN32_FIND_DATAA findData;
+    std::string patronBusqueda = rutaCasos + "\\*";
+    HANDLE hFind = FindFirstFileA(patronBusqueda.c_str(), &findData);
+    
+    if (hFind == INVALID_HANDLE_VALUE) {
+        throw std::runtime_error("Error al buscar casos en el directorio");
+    }
+    
+    do {
+        if ((findData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) &&
+            (strcmp(findData.cFileName, ".") != 0) &&
+            (strcmp(findData.cFileName, "..") != 0)) {
+            casos.push_back(findData.cFileName);
+        }
+    } while (FindNextFileA(hFind, &findData));
+    
+    FindClose(hFind);
+    
+    if (casos.empty()) {
+        throw std::runtime_error("No se encontraron casos en el directorio");
+    }
+    
+    // Ordenar los casos
+    std::sort(casos.begin(), casos.end());
+    return casos;
+}
+
+// Función para obtener la lista de archivos M*.txt ordenados
+std::vector<std::string> obtenerArchivosMascara(const std::string& rutaBase) {
+    std::vector<std::string> archivos;
+    std::string patronBusqueda = rutaBase + "M*.txt";
+    
+    WIN32_FIND_DATAA findData;
+    HANDLE hFind = FindFirstFileA(patronBusqueda.c_str(), &findData);
+    
+    if (hFind == INVALID_HANDLE_VALUE) {
+        throw std::runtime_error("No se encontraron archivos de máscara (M*.txt)");
+    }
+    
+    do {
+        if (!(findData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)) {
+            archivos.push_back(findData.cFileName);
+        }
+    } while (FindNextFileA(hFind, &findData));
+    
+    FindClose(hFind);
+    
+    if (archivos.empty()) {
+        throw std::runtime_error("No se encontraron archivos de máscara (M*.txt)");
+    }
+    
+    // Ordenar los archivos para procesarlos en orden
+    std::sort(archivos.begin(), archivos.end());
+    return archivos;
+}
+
 int main() {
     try {
         std::cout << "Programa de Reconstrucción de Imágenes" << std::endl;
         std::cout << "======================================" << std::endl;
         
-        // Rutas de los archivos proporcionados
-        std::string rutaImagenTransformada = "I_M.bmp"; // Imagen transformada (ID)
-        std::string rutaImagenAleatoria = "I_O.bmp";    // Imagen aleatoria (IM)
-        std::string rutaMascara = "M.bmp";              // Máscara (M)
-        std::string rutaSalida = "P1.bmp";              // Imagen reconstruida
+        // Obtener y mostrar casos disponibles
+        std::vector<std::string> casos;
+        try {
+            casos = obtenerCasosDisponibles();
+        } catch (const std::runtime_error& e) {
+            std::cerr << "Error al buscar casos: " << e.what() << std::endl;
+            return 1;
+        }
+        
+        // Mostrar casos disponibles
+        std::cout << "\nCasos disponibles:" << std::endl;
+        for (size_t i = 0; i < casos.size(); ++i) {
+            std::cout << (i + 1) << ". " << casos[i] << std::endl;
+        }
+        
+        // Solicitar selección de caso
+        int casoSeleccionado;
+        std::cout << "\nSeleccione el caso a procesar (1-" << casos.size() << "): ";
+        std::cin >> casoSeleccionado;
+        
+        // Validar entrada
+        if (std::cin.fail() || casoSeleccionado < 1 || casoSeleccionado > static_cast<int>(casos.size())) {
+            throw std::runtime_error("Selección de caso no válida");
+        }
+        
+        // Construir ruta base según el caso seleccionado
+        std::string rutaBase = "Casos\\" + casos[casoSeleccionado - 1] + "\\";
+        
+        // Verificar que el directorio del caso existe
+        if (!directorioExiste(rutaBase)) {
+            throw std::runtime_error("El directorio del caso seleccionado no existe");
+        }
+        
+        std::cout << "\nProcesando " << casos[casoSeleccionado - 1] << "..." << std::endl;
+        
+        // Rutas de los archivos según el caso seleccionado
+        std::string rutaImagenTransformada = rutaBase + "I_M.bmp";
+        std::string rutaImagenAleatoria = rutaBase + "I_O.bmp";
+        std::string rutaMascara = rutaBase + "M.bmp";
+        std::string rutaSalida = rutaBase + "P1.bmp";
         
         // Cargar imágenes
         std::cout << "Cargando imágenes..." << std::endl;
@@ -339,28 +449,31 @@ int main() {
         // Cargar archivos de enmascaramiento
         std::cout << "Cargando archivos de enmascaramiento..." << std::endl;
         std::vector<DatosMascara> datosMascaras;
-		// Verificar si los archivos de enmascaramiento existen
-        // Cargar los archivos de enmascaramiento proporcionados (M1.txt y M2.txt)
-        std::vector<std::string> archivos = {"M1.txt", "M2.txt"};
         
-        for (const auto& rutaArchivo : archivos) {
-            std::cout << "Intentando cargar: " << rutaArchivo << std::endl;
+        // Obtener lista de archivos M*.txt
+        std::vector<std::string> archivosMascara = obtenerArchivosMascara(rutaBase);
+        
+        // Mostrar archivos encontrados
+        std::cout << "Archivos de máscara encontrados: " << archivosMascara.size() << std::endl;
+        
+        // Cargar cada archivo de máscara
+        for (const auto& archivo : archivosMascara) {
+            std::string rutaArchivo = rutaBase + archivo;
+            std::cout << "Cargando: " << archivo << std::endl;
             
-            // Verificar si el archivo existe
-            std::ifstream verificar(rutaArchivo);
-            if (verificar.good()) {
-                verificar.close();
+            try {
                 datosMascaras.push_back(cargarDatosMascara(rutaArchivo));
                 std::cout << "Archivo cargado correctamente." << std::endl;
-            } else {
-                std::cout << "Archivo no encontrado: " << rutaArchivo << std::endl;
+            } catch (const std::exception& e) {
+                std::cerr << "Error al cargar " << archivo << ": " << e.what() << std::endl;
+                throw;
             }
         }
         
         if (datosMascaras.empty()) {
-            throw std::runtime_error("No se encontraron archivos de enmascaramiento");
+            throw std::runtime_error("No se pudieron cargar los archivos de enmascaramiento");
         }
-		// Verificar que la máscara y las imágenes tengan las mismas dimensiones
+        
         // Reconstruir la imagen original
         std::cout << "Reconstruyendo imagen original..." << std::endl;
         Imagen imagenReconstruida = reconstruirImagen(imagenTransformada, imagenAleatoria, mascara, datosMascaras);
