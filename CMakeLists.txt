@@ -1,36 +1,23 @@
-cmake_minimum_required(VERSION 3.16)
+cmake_minimum_required(VERSION 3.1.0)
 
-project(ReconstruccionImagenes LANGUAGES CXX)
+project(image_reconstruction)
 
-set(CMAKE_AUTOUIC ON)
-set(CMAKE_AUTOMOC ON)
-set(CMAKE_AUTORCC ON)
-
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Core Gui LinguistTools)
-find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Core Gui LinguistTools)
+set(CMAKE_AUTOMOC ON)
+set(CMAKE_AUTORCC ON)
+set(CMAKE_AUTOUIC ON)
 
-set(TS_FILES ReconstruccionImagenes_es_CO.ts)
+find_package(Qt6 COMPONENTS Core Gui REQUIRED)
 
-add_executable(ReconstruccionImagenes
-  main.cpp
-  ${TS_FILES}
-)
-target_link_libraries(ReconstruccionImagenes
-  Qt${QT_VERSION_MAJOR}::Core
-  Qt${QT_VERSION_MAJOR}::Gui
+add_executable(${PROJECT_NAME}
+    main.cpp
+    image_utils.cpp
+    image_utils.h
 )
 
-if(COMMAND qt_create_translation)
-    qt_create_translation(QM_FILES ${CMAKE_SOURCE_DIR} ${TS_FILES})
-else()
-    qt5_create_translation(QM_FILES ${CMAKE_SOURCE_DIR} ${TS_FILES})
-endif()
-
-include(GNUInstallDirs)
-install(TARGETS ReconstruccionImagenes
-    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-)
+target_link_libraries(${PROJECT_NAME}
+    Qt6::Core
+    Qt6::Gui
+) 

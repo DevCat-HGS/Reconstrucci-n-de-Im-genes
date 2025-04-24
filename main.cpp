@@ -15,11 +15,7 @@
 #include <io.h>       // Para _access
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>  // Para Windows API
-
-// Funciones reutilizadas del código base (adaptadas)
-extern unsigned char* loadPixels(QString input, int &width, int &height);
-extern bool exportImage(unsigned char* pixelData, int width, int height, QString archivoSalida);
-extern unsigned int* loadSeedMasking(const char* nombreArchivo, int &seed, int &n_pixels);
+#include "image_utils.h"
 
 // Función para aplicar XOR entre dos arrays de píxeles
 void aplicarXOR(unsigned char* destino, const unsigned char* img1, const unsigned char* img2, int totalPixels) {
@@ -115,13 +111,13 @@ unsigned char* reconstruirImagen(const unsigned char* imagenTransformada, const 
     if (imagenD) {
         // Crear buffer temporal para el resultado
         unsigned char* tempBuffer = new unsigned char[totalPixels * 3];
-        
+
         // Aplicar XOR con I_D
         aplicarXOR(tempBuffer, imagenActual, imagenD, totalPixels);
-        
+
         // Copiar resultado al buffer principal
         memcpy(imagenActual, tempBuffer, totalPixels * 3);
-        
+
         // Liberar buffer temporal
         delete[] tempBuffer;
     }
@@ -141,16 +137,14 @@ int main(int argc, char* argv[]) {
         std::cout << "Programa de Reconstrucción de Imágenes" << std::endl;
         std::cout << "======================================" << std::endl;
 
-        // Verificar argumentos de línea de comandos
-        if (argc < 2) {
-            std::cout << "Uso: " << argv[0] << " <directorio_caso>" << std::endl;
-            std::cout << "Ejemplo: " << argv[0] << " Casos/Caso1" << std::endl;
-            return 1;
-        }
-
+        const char* dirCasoDefault = "C:\\Users\\ADMIN\\Documents\\untitled1\\";
+        
+        // Si no hay argumentos, usar el directorio por defecto
+        const char* directorioEntrada = (argc < 2) ? dirCasoDefault : argv[1];
+        
         // Construir rutas basadas en el directorio del caso
         char dirCaso[MAX_PATH];
-        strcpy(dirCaso, argv[1]);
+        strcpy(dirCaso, directorioEntrada);
         size_t len = strlen(dirCaso);
         if (len > 0 && dirCaso[len-1] != '/' && dirCaso[len-1] != '\\') {
             dirCaso[len] = '/';
@@ -162,7 +156,7 @@ int main(int argc, char* argv[]) {
         char patronBusqueda[MAX_PATH];
         sprintf(patronBusqueda, "%sM*.txt", dirCaso);
         HANDLE hFind = FindFirstFileA(patronBusqueda, &findData);
-        
+
         if (hFind == INVALID_HANDLE_VALUE) {
             std::cerr << "Error: No se encontraron archivos de máscara M*.txt" << std::endl;
             return 1;
@@ -173,12 +167,12 @@ int main(int argc, char* argv[]) {
         char rutaImagenAleatoria[MAX_PATH];
         char rutaMascara[MAX_PATH];
         char rutaImagenD[MAX_PATH];
-        
+
         sprintf(rutaImagenTransformada, "%sI_M.bmp", dirCaso);
         sprintf(rutaImagenAleatoria, "%sI_O.bmp", dirCaso);
         sprintf(rutaMascara, "%sM.bmp", dirCaso);
         sprintf(rutaImagenD, "%sI_D.bmp", dirCaso);
-        
+
         // Verificar si existe el archivo I_D.bmp
         bool tieneImagenD = (_access(rutaImagenD, 0) != -1);
 
@@ -190,11 +184,11 @@ int main(int argc, char* argv[]) {
         if (tieneImagenD) {
             std::cout << "I_D.bmp: " << rutaImagenD << std::endl;
         }
-        
+
         // Vector dinámico para almacenar las rutas de los archivos de máscara
         char** rutasMascaras = nullptr;
         int numMascaras = 0;
-        
+
         // Contar y almacenar las rutas de los archivos de máscara
         do {
             if (strstr(findData.cFileName, ".txt")) {
@@ -204,7 +198,7 @@ int main(int argc, char* argv[]) {
                 }
                 temp[numMascaras] = new char[MAX_PATH];
                 sprintf(temp[numMascaras], "%s%s", dirCaso, findData.cFileName);
-                
+
                 if (rutasMascaras) {
                     delete[] rutasMascaras;
                 }
@@ -212,7 +206,7 @@ int main(int argc, char* argv[]) {
                 numMascaras++;
             }
         } while (FindNextFileA(hFind, &findData));
-        
+
         FindClose(hFind);
 
         // Variables para almacenar dimensiones
@@ -227,7 +221,7 @@ int main(int argc, char* argv[]) {
         unsigned char* imagenTransformada = cargarImagenBMP(rutaImagenTransformada, anchoTransf, altoTransf);
         unsigned char* imagenAleatoria = cargarImagenBMP(rutaImagenAleatoria, anchoAlea, altoAlea);
         unsigned char* mascara = cargarImagenBMP(rutaMascara, anchoMasc, altoMasc);
-        
+
         // Cargar I_D.bmp si existe
         if (tieneImagenD) {
             std::cout << "Cargando imagen I_D.bmp..." << std::endl;
@@ -261,7 +255,7 @@ int main(int argc, char* argv[]) {
         // Procesar cada archivo de máscara
         for(int i = 0; i < numMascaras; i++) {
             std::cout << "\nProcesando máscara " << rutasMascaras[i] << std::endl;
-            
+
             // Reconstruir la imagen
             std::cout << "Reconstruyendo imagen..." << std::endl;
             unsigned char* imagenReconstruida = reconstruirImagen(
@@ -279,7 +273,7 @@ int main(int argc, char* argv[]) {
             // Generar nombre de archivo de salida
             char nombreSalida[MAX_PATH];
             sprintf(nombreSalida, "%sP%d.bmp", dirCaso, i + 1);
-            
+
             // Guardar la imagen reconstruida
             std::cout << "Guardando imagen reconstruida..." << std::endl;
             bool exitoGuardado = guardarImagenBMP(imagenReconstruida, anchoTransf, altoTransf, nombreSalida);
@@ -289,7 +283,7 @@ int main(int argc, char* argv[]) {
             } else {
                 std::cout << "Imagen reconstruida guardada exitosamente en: " << nombreSalida << std::endl;
             }
-            
+
             delete[] imagenReconstruida;
         }
 
@@ -305,10 +299,15 @@ int main(int argc, char* argv[]) {
             delete[] imagenD;
         }
 
+        std::cout << "\nPresiona Enter para cerrar..." << std::endl;
+        std::cin.get();
+
         return 0;
 
     } catch (const std::exception& e) {
         std::cerr << "Error: " << e.what() << std::endl;
+        std::cout << "\nPresiona Enter para cerrar..." << std::endl;
+        std::cin.get();
         return 1;
     }
 }
