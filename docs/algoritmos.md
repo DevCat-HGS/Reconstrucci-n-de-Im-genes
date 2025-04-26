@@ -1,5 +1,34 @@
 # Documentación de Algoritmos Implementados
 
+## Operaciones de Bits
+### 1. Desplazamiento de Bits
+#### Descripción
+Implementa operaciones de desplazamiento binario a la izquierda (<<) y derecha (>>) de hasta 8 bits.
+
+#### Funciones
+```cpp
+void desplazarIzquierda(unsigned char* destino, const unsigned char* img, int totalPixels, int bits)
+void desplazarDerecha(unsigned char* destino, const unsigned char* img, int totalPixels, int bits)
+```
+
+#### Complejidad
+- Tiempo: O(totalPixels)
+- Espacio: O(1)
+
+### 2. Rotación de Bits
+#### Descripción
+Implementa operaciones de rotación circular de bits a la izquierda y derecha de hasta 8 bits.
+
+#### Funciones
+```cpp
+void rotarIzquierda(unsigned char* destino, const unsigned char* img, int totalPixels, int bits)
+void rotarDerecha(unsigned char* destino, const unsigned char* img, int totalPixels, int bits)
+```
+
+#### Complejidad
+- Tiempo: O(totalPixels)
+- Espacio: O(1)
+
 ## 1. Carga de Imágenes (loadPixels)
 
 ```cpp
@@ -91,4 +120,4 @@ Proceso principal que combina las imágenes usando los datos de máscara.
 ### Respuesta a Errores
 - Mensajes descriptivos
 - Limpieza de recursos
-- Estado de error apropiado 
+- Estado de error apropiado

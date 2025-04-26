@@ -19,9 +19,18 @@
 
 // Función para aplicar XOR entre dos arrays de píxeles
 void aplicarXOR(unsigned char* destino, const unsigned char* img1, const unsigned char* img2, int totalPixels) {
+    std::cout << "\nDebug: Aplicando operación XOR" << std::endl;
+    std::cout << "Debug: Total de píxeles a procesar: " << totalPixels << std::endl;
     for(int i = 0; i < totalPixels * 3; i++) {
-        destino[i] = img1[i] ^ img2[i];
+        if(i < 10) { // Mostrar solo los primeros 10 valores para no saturar la salida
+            std::cout << "Debug: XOR - Valor1: " << (int)img1[i] << ", Valor2: " << (int)img2[i];
+            destino[i] = img1[i] ^ img2[i];
+            std::cout << ", Resultado: " << (int)destino[i] << std::endl;
+        } else {
+            destino[i] = img1[i] ^ img2[i];
+        }
     }
+    std::cout << "Debug: Operación XOR completada" << std::endl;
 }
 
 // Función para sumar dos arrays de píxeles
@@ -36,6 +45,74 @@ void restarPixeles(unsigned char* destino, const unsigned char* img1, const unsi
     for(int i = 0; i < totalPixels * 3; i++) {
         destino[i] = img1[i] - img2[i];
     }
+}
+
+// Función para desplazamiento a la izquierda de bits
+void desplazarIzquierda(unsigned char* destino, const unsigned char* img, int totalPixels, int bits) {
+    bits = bits % 8; // Asegurar que el desplazamiento sea menor a 8 bits
+    std::cout << "\nDebug: Realizando desplazamiento a la izquierda de " << bits << " bits" << std::endl;
+    std::cout << "Debug: Total de píxeles a procesar: " << totalPixels << std::endl;
+    for(int i = 0; i < totalPixels * 3; i++) {
+        if(i < 10) { // Mostrar solo los primeros 10 valores
+            std::cout << "Debug: Desplazamiento Izq - Valor original: " << (int)img[i];
+            destino[i] = img[i] << bits;
+            std::cout << ", Resultado: " << (int)destino[i] << std::endl;
+        } else {
+            destino[i] = img[i] << bits;
+        }
+    }
+    std::cout << "Debug: Desplazamiento a la izquierda completado" << std::endl;
+}
+
+// Función para desplazamiento a la derecha de bits
+void desplazarDerecha(unsigned char* destino, const unsigned char* img, int totalPixels, int bits) {
+    bits = bits % 8; // Asegurar que el desplazamiento sea menor a 8 bits
+    std::cout << "\nDebug: Realizando desplazamiento a la derecha de " << bits << " bits" << std::endl;
+    std::cout << "Debug: Total de píxeles a procesar: " << totalPixels << std::endl;
+    for(int i = 0; i < totalPixels * 3; i++) {
+        if(i < 10) { // Mostrar solo los primeros 10 valores
+            std::cout << "Debug: Desplazamiento Der - Valor original: " << (int)img[i];
+            destino[i] = img[i] >> bits;
+            std::cout << ", Resultado: " << (int)destino[i] << std::endl;
+        } else {
+            destino[i] = img[i] >> bits;
+        }
+    }
+    std::cout << "Debug: Desplazamiento a la derecha completado" << std::endl;
+}
+
+// Función para rotación a la izquierda de bits
+void rotarIzquierda(unsigned char* destino, const unsigned char* img, int totalPixels, int bits) {
+    bits = bits % 8; // Asegurar que la rotación sea menor a 8 bits
+    std::cout << "\nDebug: Realizando rotación a la izquierda de " << bits << " bits" << std::endl;
+    std::cout << "Debug: Total de píxeles a procesar: " << totalPixels << std::endl;
+    for(int i = 0; i < totalPixels * 3; i++) {
+        if(i < 10) { // Mostrar solo los primeros 10 valores
+            std::cout << "Debug: Rotación Izq - Valor original: " << (int)img[i];
+            destino[i] = (img[i] << bits) | (img[i] >> (8 - bits));
+            std::cout << ", Resultado: " << (int)destino[i] << std::endl;
+        } else {
+            destino[i] = (img[i] << bits) | (img[i] >> (8 - bits));
+        }
+    }
+    std::cout << "Debug: Rotación a la izquierda completada" << std::endl;
+}
+
+// Función para rotación a la derecha de bits
+void rotarDerecha(unsigned char* destino, const unsigned char* img, int totalPixels, int bits) {
+    bits = bits % 8; // Asegurar que la rotación sea menor a 8 bits
+    std::cout << "\nDebug: Realizando rotación a la derecha de " << bits << " bits" << std::endl;
+    std::cout << "Debug: Total de píxeles a procesar: " << totalPixels << std::endl;
+    for(int i = 0; i < totalPixels * 3; i++) {
+        if(i < 10) { // Mostrar solo los primeros 10 valores
+            std::cout << "Debug: Rotación Der - Valor original: " << (int)img[i];
+            destino[i] = (img[i] >> bits) | (img[i] << (8 - bits));
+            std::cout << ", Resultado: " << (int)destino[i] << std::endl;
+        } else {
+            destino[i] = (img[i] >> bits) | (img[i] << (8 - bits));
+        }
+    }
+    std::cout << "Debug: Rotación a la derecha completada" << std::endl;
 }
 
 // Función para cargar una imagen BMP usando memoria dinámica
