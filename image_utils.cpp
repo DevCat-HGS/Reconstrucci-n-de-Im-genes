@@ -6,6 +6,8 @@
 #include <sstream>
 
 unsigned char* loadPixels(QString input, int &width, int &height) {
+    std::cout << "\n[DEBUG] Iniciando carga de imagen: " << input.toStdString() << std::endl;
+    
     QImage image(input);
     if (image.isNull()) {
         std::cerr << "Error: Could not load image " << input.toStdString() << std::endl;
@@ -14,8 +16,14 @@ unsigned char* loadPixels(QString input, int &width, int &height) {
 
     width = image.width();
     height = image.height();
+    std::cout << "[DEBUG] Dimensiones de imagen: " << width << "x" << height << std::endl;
+    
     unsigned char* pixels = new unsigned char[width * height * 3];
+    std::cout << "[DEBUG] Memoria reservada para píxeles: " << (width * height * 3) << " bytes" << std::endl;
 
+    int pixelsProcessed = 0;
+    std::cout << "[DEBUG] Iniciando conversión de píxeles a formato RGB..." << std::endl;
+    
     for (int y = 0; y < height; y++) {
         for (int x = 0; x < width; x++) {
             QColor color(image.pixel(x, y));
@@ -23,6 +31,12 @@ unsigned char* loadPixels(QString input, int &width, int &height) {
             pixels[index] = static_cast<unsigned char>(color.red());
             pixels[index + 1] = static_cast<unsigned char>(color.green());
             pixels[index + 2] = static_cast<unsigned char>(color.blue());
+            pixelsProcessed++;
+            
+            if (pixelsProcessed % (width * 10) == 0) { // Mostrar progreso cada 10 líneas
+                std::cout << "[DEBUG] Procesados " << pixelsProcessed << " de " << (width * height) << " píxeles (" 
+                          << (pixelsProcessed * 100.0 / (width * height)) << "%)" << std::endl;
+            }
         }
     }
 
@@ -30,7 +44,11 @@ unsigned char* loadPixels(QString input, int &width, int &height) {
 }
 
 bool exportImage(unsigned char* pixelData, int width, int height, QString archivoSalida) {
+    std::cout << "\n[DEBUG] Iniciando exportación de imagen: " << archivoSalida.toStdString() << std::endl;
+    std::cout << "[DEBUG] Dimensiones de salida: " << width << "x" << height << std::endl;
+    
     if (!pixelData || width <= 0 || height <= 0) {
+        std::cerr << "[DEBUG] Error: Datos de píxeles inválidos o dimensiones incorrectas" << std::endl;
         return false;
     }
 
@@ -49,6 +67,8 @@ bool exportImage(unsigned char* pixelData, int width, int height, QString archiv
 }
 
 unsigned int* loadSeedMasking(const char* nombreArchivo, int &seed, int &n_pixels) {
+    std::cout << "\n[DEBUG] Iniciando carga de archivo de máscara: " << nombreArchivo << std::endl;
+    
     std::ifstream file(nombreArchivo);
     if (!file.is_open()) {
         std::cerr << "Error: Could not open masking file " << nombreArchivo << std::endl;
@@ -103,12 +123,18 @@ unsigned int* loadSeedMasking(const char* nombreArchivo, int &seed, int &n_pixel
     // Usar el número real de líneas como n_pixels
     n_pixels = real_lines;
     seed = 0;
+    
+    std::cout << "[DEBUG] Número de píxeles detectados: " << n_pixels << std::endl;
+    std::cout << "[DEBUG] Valor de semilla: " << seed << std::endl;
 
     // Reservar memoria para los datos
     unsigned int* maskingData = new unsigned int[n_pixels * 3];
     int idx = 0;
 
+    std::cout << "[DEBUG] Formato de archivo detectado: " << numeros << " valores por línea" << std::endl;
+    
     if (numeros == 2) {
+        std::cout << "[DEBUG] Procesando archivo en formato original (pares de valores)" << std::endl;
         // Formato original (Caso 0 y 1): pares de valores
         unsigned int val1, val2;
         while (idx < n_pixels * 3 && file >> val1 >> val2) {
@@ -117,6 +143,7 @@ unsigned int* loadSeedMasking(const char* nombreArchivo, int &seed, int &n_pixel
             maskingData[idx++] = val2;
         }
     } else if (numeros == 3) {
+        std::cout << "[DEBUG] Procesando archivo en formato nuevo (tripletas RGB)" << std::endl;
         // Formato nuevo (Caso 2): tripletas RGB
         unsigned int r, g, b;
         while (idx < n_pixels * 3 && std::getline(file, line)) {
@@ -145,4 +172,4 @@ unsigned int* loadSeedMasking(const char* nombreArchivo, int &seed, int &n_pixel
 
     file.close();
     return maskingData;
-} 
+}
