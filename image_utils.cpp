@@ -4,26 +4,24 @@
 #include <fstream>
 #include <iostream>
 #include <sstream>
+using namespace std;
+
 
 unsigned char* loadPixels(QString input, int &width, int &height) {
-    std::cout << "\n[DEBUG] Iniciando carga de imagen: " << input.toStdString() << std::endl;
-    
+    cout << "\nIniciando carga de imagen: " << input.toStdString() << endl;
     QImage image(input);
     if (image.isNull()) {
-        std::cerr << "Error: Could not load image " << input.toStdString() << std::endl;
+        cerr << "Error: Could not load image " << input.toStdString() << endl;
         return nullptr;
     }
 
     width = image.width();
     height = image.height();
-    std::cout << "[DEBUG] Dimensiones de imagen: " << width << "x" << height << std::endl;
-    
+    cout << "Dimensiones de la imagen - Ancho: " << width << ", Alto: " << height << endl;
+    cout << "Reservando memoria para " << (width * height * 3) << " bytes..." << endl;
     unsigned char* pixels = new unsigned char[width * height * 3];
-    std::cout << "[DEBUG] Memoria reservada para píxeles: " << (width * height * 3) << " bytes" << std::endl;
 
-    int pixelsProcessed = 0;
-    std::cout << "[DEBUG] Iniciando conversión de píxeles a formato RGB..." << std::endl;
-    
+    cout << "Procesando píxeles de la imagen..." << endl;
     for (int y = 0; y < height; y++) {
         for (int x = 0; x < width; x++) {
             QColor color(image.pixel(x, y));
@@ -31,54 +29,53 @@ unsigned char* loadPixels(QString input, int &width, int &height) {
             pixels[index] = static_cast<unsigned char>(color.red());
             pixels[index + 1] = static_cast<unsigned char>(color.green());
             pixels[index + 2] = static_cast<unsigned char>(color.blue());
-            pixelsProcessed++;
-            
-            if (pixelsProcessed % (width * 10) == 0) { // Mostrar progreso cada 10 líneas
-                std::cout << "[DEBUG] Procesados " << pixelsProcessed << " de " << (width * height) << " píxeles (" 
-                          << (pixelsProcessed * 100.0 / (width * height)) << "%)" << std::endl;
-            }
         }
     }
 
+    cout << "Carga de imagen completada exitosamente" << endl;
     return pixels;
 }
 
 bool exportImage(unsigned char* pixelData, int width, int height, QString archivoSalida) {
-    std::cout << "\n[DEBUG] Iniciando exportación de imagen: " << archivoSalida.toStdString() << std::endl;
-    std::cout << "[DEBUG] Dimensiones de salida: " << width << "x" << height << std::endl;
-    
+    cout << "\nIniciando exportación de imagen a: " << archivoSalida.toStdString() << endl;
+    cout << "Dimensiones de la imagen - Ancho: " << width << ", Alto: " << height << endl;
     if (!pixelData || width <= 0 || height <= 0) {
-        std::cerr << "[DEBUG] Error: Datos de píxeles inválidos o dimensiones incorrectas" << std::endl;
         return false;
     }
 
     QImage image(width, height, QImage::Format_RGB888);
 
+    cout << "Procesando píxeles de la imagen..." << endl;
     for (int y = 0; y < height; y++) {
         for (int x = 0; x < width; x++) {
             int index = (y * width + x) * 3;
             image.setPixel(x, y, qRgb(pixelData[index],
-                                    pixelData[index + 1],
-                                    pixelData[index + 2]));
+                                      pixelData[index + 1],
+                                      pixelData[index + 2]));
         }
     }
 
-    return image.save(archivoSalida);
+    bool success = image.save(archivoSalida);
+    if (success) {
+        cout << "Imagen guardada exitosamente" << endl;
+    } else {
+        cout << "Error al guardar la imagen" << endl;
+    }
+    return success;
 }
 
 unsigned int* loadSeedMasking(const char* nombreArchivo, int &seed, int &n_pixels) {
-    std::cout << "\n[DEBUG] Iniciando carga de archivo de máscara: " << nombreArchivo << std::endl;
-    
+    cout << "\nIniciando carga de archivo de máscara: " << nombreArchivo << endl;
     std::ifstream file(nombreArchivo);
     if (!file.is_open()) {
-        std::cerr << "Error: Could not open masking file " << nombreArchivo << std::endl;
+        cerr << "Error: Could not open masking file " << nombreArchivo << endl;
         return nullptr;
     }
 
     // Leer la primera línea (ignoraremos este número ya que puede ser incorrecto)
     int declared_pixels;
     if (!(file >> declared_pixels)) {
-        std::cerr << "Error: Could not read number of pixels" << std::endl;
+        cerr << "Error: Could not read number of pixels" << endl;
         file.close();
         return nullptr;
     }
@@ -87,7 +84,7 @@ unsigned int* loadSeedMasking(const char* nombreArchivo, int &seed, int &n_pixel
     std::string line;
     std::getline(file, line); // Consumir el resto de la primera línea
     if (!std::getline(file, line)) {
-        std::cerr << "Error: File is empty after pixel count" << std::endl;
+        cerr << "Error: File is empty after pixel count" << endl;
         file.close();
         return nullptr;
     }
@@ -123,18 +120,12 @@ unsigned int* loadSeedMasking(const char* nombreArchivo, int &seed, int &n_pixel
     // Usar el número real de líneas como n_pixels
     n_pixels = real_lines;
     seed = 0;
-    
-    std::cout << "[DEBUG] Número de píxeles detectados: " << n_pixels << std::endl;
-    std::cout << "[DEBUG] Valor de semilla: " << seed << std::endl;
 
     // Reservar memoria para los datos
     unsigned int* maskingData = new unsigned int[n_pixels * 3];
     int idx = 0;
 
-    std::cout << "[DEBUG] Formato de archivo detectado: " << numeros << " valores por línea" << std::endl;
-    
     if (numeros == 2) {
-        std::cout << "[DEBUG] Procesando archivo en formato original (pares de valores)" << std::endl;
         // Formato original (Caso 0 y 1): pares de valores
         unsigned int val1, val2;
         while (idx < n_pixels * 3 && file >> val1 >> val2) {
@@ -143,12 +134,11 @@ unsigned int* loadSeedMasking(const char* nombreArchivo, int &seed, int &n_pixel
             maskingData[idx++] = val2;
         }
     } else if (numeros == 3) {
-        std::cout << "[DEBUG] Procesando archivo en formato nuevo (tripletas RGB)" << std::endl;
         // Formato nuevo (Caso 2): tripletas RGB
         unsigned int r, g, b;
         while (idx < n_pixels * 3 && std::getline(file, line)) {
             if (line.empty()) continue;
-            
+
             std::istringstream iss(line);
             if (iss >> r >> g >> b) {
                 maskingData[idx++] = r;
@@ -157,14 +147,14 @@ unsigned int* loadSeedMasking(const char* nombreArchivo, int &seed, int &n_pixel
             }
         }
     } else {
-        std::cerr << "Error: Invalid file format (expected 2 or 3 values per line)" << std::endl;
+        cerr << "Error: Invalid file format (expected 2 or 3 values per line)" << endl;
         delete[] maskingData;
         file.close();
         return nullptr;
     }
 
     if (idx < n_pixels * 3) {
-        std::cerr << "Error: Insufficient data in masking file" << std::endl;
+        cerr << "Error: Insufficient data in masking file" << endl;
         delete[] maskingData;
         file.close();
         return nullptr;

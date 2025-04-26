@@ -16,25 +16,28 @@
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>  // Para Windows API
 #include "image_utils.h"
+using namespace std;
 
 // Función para aplicar XOR entre dos arrays de píxeles
 void aplicarXOR(unsigned char* destino, const unsigned char* img1, const unsigned char* img2, int totalPixels) {
-    std::cout << "\nDebug: Aplicando operación XOR" << std::endl;
-    std::cout << "Debug: Total de píxeles a procesar: " << totalPixels << std::endl;
+    cout << "\nIniciando operación XOR entre imágenes..." << endl;
+    cout << "Total de píxeles a procesar: " << totalPixels << endl;
     for(int i = 0; i < totalPixels * 3; i++) {
         if(i < 10) { // Mostrar solo los primeros 10 valores para no saturar la salida
-            std::cout << "Debug: XOR - Valor1: " << (int)img1[i] << ", Valor2: " << (int)img2[i];
+            cout << "Debug: XOR - Valor1: " << (int)img1[i] << ", Valor2: " << (int)img2[i];
             destino[i] = img1[i] ^ img2[i];
-            std::cout << ", Resultado: " << (int)destino[i] << std::endl;
+            cout << ", Resultado: " << (int)destino[i] << endl;
         } else {
             destino[i] = img1[i] ^ img2[i];
         }
     }
-    std::cout << "Debug: Operación XOR completada" << std::endl;
+    cout << "Debug: Operación XOR completada" << endl;
 }
 
 // Función para sumar dos arrays de píxeles
 void sumarPixeles(unsigned char* destino, const unsigned char* img1, const unsigned char* img2, int totalPixels) {
+    cout << "\nIniciando suma de píxeles entre imágenes..." << endl;
+    cout << "Total de píxeles a procesar: " << totalPixels << endl;
     for(int i = 0; i < totalPixels * 3; i++) {
         destino[i] = img1[i] + img2[i];
     }
@@ -42,6 +45,8 @@ void sumarPixeles(unsigned char* destino, const unsigned char* img1, const unsig
 
 // Función para restar dos arrays de píxeles
 void restarPixeles(unsigned char* destino, const unsigned char* img1, const unsigned char* img2, int totalPixels) {
+    cout << "\nIniciando resta de píxeles entre imágenes..." << endl;
+    cout << "Total de píxeles a procesar: " << totalPixels << endl;
     for(int i = 0; i < totalPixels * 3; i++) {
         destino[i] = img1[i] - img2[i];
     }
@@ -50,99 +55,102 @@ void restarPixeles(unsigned char* destino, const unsigned char* img1, const unsi
 // Función para desplazamiento a la izquierda de bits
 void desplazarIzquierda(unsigned char* destino, const unsigned char* img, int totalPixels, int bits) {
     bits = bits % 8; // Asegurar que el desplazamiento sea menor a 8 bits
-    std::cout << "\nDebug: Realizando desplazamiento a la izquierda de " << bits << " bits" << std::endl;
-    std::cout << "Debug: Total de píxeles a procesar: " << totalPixels << std::endl;
+    cout << "\nIniciando desplazamiento a la izquierda..." << endl;
+    cout << "Bits a desplazar: " << bits << endl;
+    cout << "Total de píxeles a procesar: " << totalPixels << endl;
     for(int i = 0; i < totalPixels * 3; i++) {
         if(i < 10) { // Mostrar solo los primeros 10 valores
-            std::cout << "Debug: Desplazamiento Izq - Valor original: " << (int)img[i];
+            cout << "Debug: Desplazamiento Izq - Valor original: " << (int)img[i];
             destino[i] = img[i] << bits;
-            std::cout << ", Resultado: " << (int)destino[i] << std::endl;
+            cout << ", Resultado: " << (int)destino[i] << endl;
         } else {
             destino[i] = img[i] << bits;
         }
     }
-    std::cout << "Debug: Desplazamiento a la izquierda completado" << std::endl;
+    cout << "Debug: Desplazamiento a la izquierda completado" << endl;
 }
 
 // Función para desplazamiento a la derecha de bits
 void desplazarDerecha(unsigned char* destino, const unsigned char* img, int totalPixels, int bits) {
     bits = bits % 8; // Asegurar que el desplazamiento sea menor a 8 bits
-    std::cout << "\nDebug: Realizando desplazamiento a la derecha de " << bits << " bits" << std::endl;
-    std::cout << "Debug: Total de píxeles a procesar: " << totalPixels << std::endl;
+    cout << "\nIniciando desplazamiento a la derecha..." << endl;
+    cout << "Bits a desplazar: " << bits << endl;
+    cout << "Total de píxeles a procesar: " << totalPixels << endl;
     for(int i = 0; i < totalPixels * 3; i++) {
         if(i < 10) { // Mostrar solo los primeros 10 valores
-            std::cout << "Debug: Desplazamiento Der - Valor original: " << (int)img[i];
+            cout << "Debug: Desplazamiento Der - Valor original: " << (int)img[i];
             destino[i] = img[i] >> bits;
-            std::cout << ", Resultado: " << (int)destino[i] << std::endl;
+            cout << ", Resultado: " << (int)destino[i] << endl;
         } else {
             destino[i] = img[i] >> bits;
         }
     }
-    std::cout << "Debug: Desplazamiento a la derecha completado" << std::endl;
+    cout << "Debug: Desplazamiento a la derecha completado" << endl;
 }
 
 // Función para rotación a la izquierda de bits
 void rotarIzquierda(unsigned char* destino, const unsigned char* img, int totalPixels, int bits) {
     bits = bits % 8; // Asegurar que la rotación sea menor a 8 bits
-    std::cout << "\nDebug: Realizando rotación a la izquierda de " << bits << " bits" << std::endl;
-    std::cout << "Debug: Total de píxeles a procesar: " << totalPixels << std::endl;
+    cout << "\nIniciando rotación a la izquierda..." << endl;
+    cout << "Bits a rotar: " << bits << endl;
+    cout << "Total de píxeles a procesar: " << totalPixels << endl;
     for(int i = 0; i < totalPixels * 3; i++) {
         if(i < 10) { // Mostrar solo los primeros 10 valores
-            std::cout << "Debug: Rotación Izq - Valor original: " << (int)img[i];
+            cout << "Debug: Rotación Izq - Valor original: " << (int)img[i];
             destino[i] = (img[i] << bits) | (img[i] >> (8 - bits));
-            std::cout << ", Resultado: " << (int)destino[i] << std::endl;
+            cout << ", Resultado: " << (int)destino[i] << endl;
         } else {
             destino[i] = (img[i] << bits) | (img[i] >> (8 - bits));
         }
     }
-    std::cout << "Debug: Rotación a la izquierda completada" << std::endl;
+    cout << "Debug: Rotación a la izquierda completada" << endl;
 }
 
 // Función para rotación a la derecha de bits
 void rotarDerecha(unsigned char* destino, const unsigned char* img, int totalPixels, int bits) {
     bits = bits % 8; // Asegurar que la rotación sea menor a 8 bits
-    std::cout << "\nDebug: Realizando rotación a la derecha de " << bits << " bits" << std::endl;
-    std::cout << "Debug: Total de píxeles a procesar: " << totalPixels << std::endl;
+    cout << "\nIniciando rotación a la derecha..." << endl;
+    cout << "Bits a rotar: " << bits << endl;
+    cout << "Total de píxeles a procesar: " << totalPixels << endl;
     for(int i = 0; i < totalPixels * 3; i++) {
         if(i < 10) { // Mostrar solo los primeros 10 valores
-            std::cout << "Debug: Rotación Der - Valor original: " << (int)img[i];
+            cout << "Debug: Rotación Der - Valor original: " << (int)img[i];
             destino[i] = (img[i] >> bits) | (img[i] << (8 - bits));
-            std::cout << ", Resultado: " << (int)destino[i] << std::endl;
+            cout << ", Resultado: " << (int)destino[i] << endl;
         } else {
             destino[i] = (img[i] >> bits) | (img[i] << (8 - bits));
         }
     }
-    std::cout << "Debug: Rotación a la derecha completada" << std::endl;
+    cout << "Debug: Rotación a la derecha completada" << endl;
 }
 
 // Función para cargar una imagen BMP usando memoria dinámica
 unsigned char* cargarImagenBMP(const char* ruta, int& ancho, int& alto) {
     QString rutaQt = QString::fromLocal8Bit(ruta);
-    std::cout << "Cargando imagen BMP desde: " << ruta << std::endl;
+    cout << "Cargando imagen BMP desde: " << ruta << endl;
     return loadPixels(rutaQt, ancho, alto);
 }
 
 // Función para guardar una imagen BMP usando memoria dinámica
 bool guardarImagenBMP(const unsigned char* pixelData, int ancho, int alto, const char* ruta) {
     QString rutaQt = QString::fromLocal8Bit(ruta);
-    std::cout << "Guardando imagen BMP en: " << ruta << std::endl;
+    cout << "Guardando imagen BMP en: " << ruta << endl;
     return exportImage(const_cast<unsigned char*>(pixelData), ancho, alto, rutaQt);
 }
 
 // Función para reconstruir la imagen original usando memoria dinámica
-unsigned char* reconstruirImagen(const unsigned char* imagenTransformada, const unsigned char* imagenAleatoria,
+unsigned char* reconstruirImagen(const unsigned char* imagenTransformada, const unsigned char* /*imagenAleatoria*/,
                                  const unsigned char* mascara, int anchoTransf, int altoTransf,
                                  int anchoMascara, int altoMascara, const char* rutaMascara,
                                  const unsigned char* imagenD = nullptr) {
     if (!imagenTransformada || anchoTransf <= 0 || altoTransf <= 0) {
-        std::cerr << "Error: La imagen transformada no es válida" << std::endl;
+        cerr << "Error: La imagen transformada no es válida" << endl;
         return nullptr;
     }
 
-    // Reservar memoria para la imagen actual y anterior
+    // Reservar memoria para la imagen actual
     int totalPixels = anchoTransf * altoTransf;
     unsigned char* imagenActual = new unsigned char[totalPixels * 3];
-    unsigned char* imagenAnterior = new unsigned char[totalPixels * 3];
 
     // Copiar la imagen transformada inicial
     memcpy(imagenActual, imagenTransformada, totalPixels * 3);
@@ -153,9 +161,8 @@ unsigned char* reconstruirImagen(const unsigned char* imagenTransformada, const 
     unsigned int* maskingData = loadSeedMasking(rutaMascara, seed, n_pixels);
 
     if (!maskingData) {
-        std::cerr << "Error al cargar datos de enmascaramiento" << std::endl;
+        cerr << "Error al cargar datos de enmascaramiento" << endl;
         delete[] imagenActual;
-        delete[] imagenAnterior;
         return nullptr;
     }
 
@@ -174,15 +181,12 @@ unsigned char* reconstruirImagen(const unsigned char* imagenTransformada, const 
         int mascaraY = i / anchoMascara;
         int mascaraOffset = (mascaraY * anchoMascara + mascaraX) * 3;
 
-        // Restar valores de la máscara
+        // Aplicar los valores de la máscara directamente
         for (int c = 0; c < 3; c++) {
-            imagenAnterior[pixelDesplazadoOffset + c] =
+            imagenActual[pixelDesplazadoOffset + c] =
                 static_cast<unsigned char>(maskingData[i * 3 + c] - mascara[mascaraOffset + c]);
         }
     }
-
-    // Aplicar XOR con la imagen aleatoria
-    aplicarXOR(imagenActual, imagenAnterior, imagenAleatoria, totalPixels);
 
     // Si existe la imagen I_D, aplicar operación adicional
     if (imagenD) {
@@ -203,7 +207,6 @@ unsigned char* reconstruirImagen(const unsigned char* imagenTransformada, const 
     guardarImagenBMP(imagenActual, anchoTransf, altoTransf, "paso_reconstruido.bmp");
 
     // Liberar memoria
-    delete[] imagenAnterior;
     delete[] maskingData;
 
     return imagenActual;
@@ -211,14 +214,14 @@ unsigned char* reconstruirImagen(const unsigned char* imagenTransformada, const 
 
 int main(int argc, char* argv[]) {
     try {
-        std::cout << "Programa de Reconstrucción de Imágenes" << std::endl;
-        std::cout << "======================================" << std::endl;
+        cout << "Programa de Reconstrucción de Imágenes" << endl;
+        cout << "======================================" << endl;
 
         const char* dirCasoDefault = "C:\\Users\\ADMIN\\Documents\\untitled1\\";
-        
+
         // Si no hay argumentos, usar el directorio por defecto
         const char* directorioEntrada = (argc < 2) ? dirCasoDefault : argv[1];
-        
+
         // Construir rutas basadas en el directorio del caso
         char dirCaso[MAX_PATH];
         strcpy(dirCaso, directorioEntrada);
@@ -235,18 +238,16 @@ int main(int argc, char* argv[]) {
         HANDLE hFind = FindFirstFileA(patronBusqueda, &findData);
 
         if (hFind == INVALID_HANDLE_VALUE) {
-            std::cerr << "Error: No se encontraron archivos de máscara M*.txt" << std::endl;
+            cerr << "Error: No se encontraron archivos de máscara M*.txt" << endl;
             return 1;
         }
 
         // Rutas de los archivos base
         char rutaImagenTransformada[MAX_PATH];
-        char rutaImagenAleatoria[MAX_PATH];
         char rutaMascara[MAX_PATH];
         char rutaImagenD[MAX_PATH];
 
         sprintf(rutaImagenTransformada, "%sI_M.bmp", dirCaso);
-        sprintf(rutaImagenAleatoria, "%sI_O.bmp", dirCaso);
         sprintf(rutaMascara, "%sM.bmp", dirCaso);
         sprintf(rutaImagenD, "%sI_D.bmp", dirCaso);
 
@@ -254,12 +255,11 @@ int main(int argc, char* argv[]) {
         bool tieneImagenD = (_access(rutaImagenD, 0) != -1);
 
         // Verificar que las rutas se hayan generado correctamente
-        std::cout << "Rutas de archivos:" << std::endl;
-        std::cout << "I_M.bmp: " << rutaImagenTransformada << std::endl;
-        std::cout << "I_O.bmp: " << rutaImagenAleatoria << std::endl;
-        std::cout << "M.bmp: " << rutaMascara << std::endl;
+        cout << "Rutas de archivos:" << endl;
+        cout << "I_M.bmp: " << rutaImagenTransformada << endl;
+        cout << "M.bmp: " << rutaMascara << endl;
         if (tieneImagenD) {
-            std::cout << "I_D.bmp: " << rutaImagenD << std::endl;
+            cout << "I_D.bmp: " << rutaImagenD << endl;
         }
 
         // Vector dinámico para almacenar las rutas de los archivos de máscara
@@ -288,26 +288,24 @@ int main(int argc, char* argv[]) {
 
         // Variables para almacenar dimensiones
         int anchoTransf = 0, altoTransf = 0;
-        int anchoAlea = 0, altoAlea = 0;
         int anchoMasc = 0, altoMasc = 0;
         int anchoD = 0, altoD = 0;
         unsigned char* imagenD = nullptr;
 
         // Cargar imágenes usando las funciones del código base
-        std::cout << "Cargando imágenes..." << std::endl;
+        cout << "Cargando imágenes..." << endl;
         unsigned char* imagenTransformada = cargarImagenBMP(rutaImagenTransformada, anchoTransf, altoTransf);
-        unsigned char* imagenAleatoria = cargarImagenBMP(rutaImagenAleatoria, anchoAlea, altoAlea);
         unsigned char* mascara = cargarImagenBMP(rutaMascara, anchoMasc, altoMasc);
 
         // Cargar I_D.bmp si existe
         if (tieneImagenD) {
-            std::cout << "Cargando imagen I_D.bmp..." << std::endl;
+            cout << "Cargando imagen I_D.bmp..." << endl;
             imagenD = cargarImagenBMP(rutaImagenD, anchoD, altoD);
             if (!imagenD) {
-                std::cerr << "Error: No se pudo cargar I_D.bmp" << std::endl;
+                cerr << "Error: No se pudo cargar I_D.bmp" << endl;
                 tieneImagenD = false;
             } else if (anchoD != anchoTransf || altoD != altoTransf) {
-                std::cerr << "Error: Las dimensiones de I_D.bmp no coinciden" << std::endl;
+                cerr << "Error: Las dimensiones de I_D.bmp no coinciden" << endl;
                 delete[] imagenD;
                 imagenD = nullptr;
                 tieneImagenD = false;
@@ -315,35 +313,26 @@ int main(int argc, char* argv[]) {
         }
 
         // Validar que las imágenes se cargaron correctamente
-        if (!imagenTransformada || !imagenAleatoria || !mascara) {
-            std::cerr << "Error al cargar una o más imágenes" << std::endl;
-            return 1;
-        }
-
-        // Validar dimensiones
-        if (anchoTransf != anchoAlea || altoTransf != altoAlea) {
-            std::cerr << "Error: Las dimensiones de las imágenes no coinciden" << std::endl;
-            delete[] imagenTransformada;
-            delete[] imagenAleatoria;
-            delete[] mascara;
+        if (!imagenTransformada || !mascara) {
+            cerr << "Error al cargar una o más imágenes" << endl;
             return 1;
         }
 
         // Procesar cada archivo de máscara
         for(int i = 0; i < numMascaras; i++) {
-            std::cout << "\nProcesando máscara " << rutasMascaras[i] << std::endl;
+            cout << "\nProcesando máscara " << rutasMascaras[i] << endl;
 
             // Reconstruir la imagen
-            std::cout << "Reconstruyendo imagen..." << std::endl;
+            cout << "Reconstruyendo imagen..." << endl;
             unsigned char* imagenReconstruida = reconstruirImagen(
-                imagenTransformada, imagenAleatoria, mascara,
+                imagenTransformada, nullptr, mascara,
                 anchoTransf, altoTransf, anchoMasc, altoMasc,
                 rutasMascaras[i],
                 tieneImagenD ? imagenD : nullptr
                 );
 
             if (!imagenReconstruida) {
-                std::cerr << "Error durante la reconstrucción de la imagen" << std::endl;
+                cerr << "Error durante la reconstrucción de la imagen" << endl;
                 continue;
             }
 
@@ -352,13 +341,13 @@ int main(int argc, char* argv[]) {
             sprintf(nombreSalida, "%sP%d.bmp", dirCaso, i + 1);
 
             // Guardar la imagen reconstruida
-            std::cout << "Guardando imagen reconstruida..." << std::endl;
+            cout << "Guardando imagen reconstruida..." << endl;
             bool exitoGuardado = guardarImagenBMP(imagenReconstruida, anchoTransf, altoTransf, nombreSalida);
 
             if (!exitoGuardado) {
-                std::cerr << "Error al guardar la imagen reconstruida" << std::endl;
+                cerr << "Error al guardar la imagen reconstruida" << endl;
             } else {
-                std::cout << "Imagen reconstruida guardada exitosamente en: " << nombreSalida << std::endl;
+                cout << "Imagen reconstruida guardada exitosamente en: " << nombreSalida << endl;
             }
 
             delete[] imagenReconstruida;
@@ -370,20 +359,19 @@ int main(int argc, char* argv[]) {
         }
         delete[] rutasMascaras;
         delete[] imagenTransformada;
-        delete[] imagenAleatoria;
         delete[] mascara;
         if (imagenD) {
             delete[] imagenD;
         }
 
-        std::cout << "\nPresiona Enter para cerrar..." << std::endl;
+        cout << "\nPresiona Enter para cerrar..." << endl;
         std::cin.get();
 
         return 0;
 
     } catch (const std::exception& e) {
-        std::cerr << "Error: " << e.what() << std::endl;
-        std::cout << "\nPresiona Enter para cerrar..." << std::endl;
+        cerr << "Error: " << e.what() << endl;
+        cout << "\nPresiona Enter para cerrar..." << endl;
         std::cin.get();
         return 1;
     }
